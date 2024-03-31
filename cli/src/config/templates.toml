@@ -39,10 +39,45 @@ log = 'builtin_log_compact'
 op_log = 'builtin_op_log_compact'
 show = 'builtin_log_detailed'
 
-log_node = 'if(self, if(current_working_copy, "@", "◉"), "◌")'
-log_node_ascii = 'if(self, if(current_working_copy, "@", "o"), ".")'
-op_log_node = 'if(current_operation, "@", "◉")'
-op_log_node_ascii = 'if(current_operation, "@", "o")'
+# Log symbols:
+log_node = '''
+label_log_node(
+  coalesce(
+    if(!self, "⇋"),
+    if(current_working_copy, "@"),
+    if(immutable, "◆"),
+    if(conflict, "×"),
+    "○"
+  )
+)
+'''
+log_node_ascii = '''
+label_log_node(
+  coalesce(
+    if(!self, "="),
+    if(current_working_copy, "@"),
+    if(immutable, "#"),
+    if(conflict, "x"),
+    "o"
+  )
+)
+'''
+op_log_node = '''
+label_op_log_node(
+  coalesce(
+    if(current_operation, "@")
+    "○"
+  )
+)
+'''
+op_log_node_ascii = '''
+label_op_log_node(
+  coalesce(
+    if(current_operation, "@")
+    "o"
+  )
+)
+'''
 
 [template-aliases]
 builtin_log_oneline = '''
@@ -171,6 +206,27 @@ if(hidden,
   ),
   label(if(divergent, "divergent"),
     format_short_change_id(change_id) ++ if(divergent,"??")
+  )
+)
+'''
+
+# Log symbol labeling:
+'label_log_node(content)' = '''
+label("node",
+  coalesce(
+    if(!self, label("elided", content)),
+    if(immutable, label("immutable", content)),
+    if(conflict, label("conflict", content)),
+    if(current_working_copy, label("working_copy", content)),
+    label("normal", content)
+  )
+)
+'''
+'label_op_log_node(content)' = '''
+label("node",
+  coalesce(
+    if(current_operation, label("working_copy", content))
+    label("normal", content)
   )
 )
 '''
